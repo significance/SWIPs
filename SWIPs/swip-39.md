@@ -32,7 +32,7 @@ There are multiple considerations that motivate such a scheme:
 
 The balanced neighbourhood assignment (associated with a service) is orchestrated by a smart contract which is deployed together with a [staking contract](https://github.com/ethersphere/storage-incentives/blob/master/src/Staking.sol). The contract API provides 2 transactional endpoints relevant for entry: 
 
-One registers a node by its ether address ($a_\xi$) in the *committers' list* $C$ that records nodes' commitment to participate as a provider in the associated decentralised service network. 
+One registers a node by its ether address ($a^\Xi$) in the *committers' list* $C$ that records nodes' commitment to participate as a provider in the associated decentralised service network. 
 
 The other one is called by the staking contract after the service network stake is deposited with a valid nonce, i.e., one that will put the node in the right neighbourhood. This call will place the node among the active node set for the service, and removes the entry from the committers list. This function includes a read-only call that takes as argument a node's  ether address and returns a neighbourhood the node is assigned to. This call is public so that the client can enquire about the neighbourhood they are assigned to -- so that they can mine an overlay address into it, ie., find a nonce that is needed to generate the overlay address. 
 
@@ -49,7 +49,7 @@ In order for a node to get its address registered, an amount  of $S_0$ (stake ze
 #### Uniqueness
 In order to prevent repeated trials, each node must be registered only once. 
 
-After checking the deposit amount and the uniqueness check on the ether address, the current blockheight is recorded with the address by pushing the entry struct ($e_n=<a_\Xi,h>$) to the end of committers list.
+After checking the deposit amount and the uniqueness check on the ether address, the current blockheight is recorded with the address by pushing the entry struct ($e_n=<a^\Xi,h>$) to the end of committers list.
 
 #### Validity 
 The entry is valid for a period of $B$ blocks after the registration[^55].
@@ -71,7 +71,7 @@ After calling expiry, the validity of the registration is checked by finding the
 
 #### Initialisation 
 
-Let $\overline{N}=2^d$ be the lowest power of 2 that is  greater than $N$,    the number of already assigned registrants, and let $d$ be its exponent ($d=int(log_2(N))+1$). Let $R$ be the array of the remaining unassigned neighbourhoods of this level (i.e., $len(R)=\overline{N}-N$). Whenever $len(R)$ drops to $0$, $d$ is incremented and $\overline{N}=2^d$ adjusts. At any point in time, a $uint256$ array of length $\overline{N}$ is maintained, called the *assignments list* $A$ holding the registered node's overlay addresses.
+Let $\overline{N}=2^d$ be the lowest power of 2 that is  greater than $N$,    the number of already assigned registrants, and let $d$ be its exponent ($d=int(log_2(N))+1$). Let $R$ be the array of the remaining unassigned neighbourhoods of this level (i.e., $len(R)=\overline{N}-N$). Whenever $len(R)$ drops to $0$, $d$ is incremented and $\overline{N}=2^d$ adjusts. At any point in time, a $uint256$ array of length $\overline{N}$ is maintained, called the *assignments list* $A$ holding the registered nodes' overlay addresses.
 Whenever $d$ changes, new arrays for assigments $A_d$ and remainders $R_d$ are created (both twice the size of the previous one $A_{d-1}$ and $R_{d-1}$). We iterate through the current array and for each overlay address $a^O_i$ at position $i$ copy $a^O_i$ to position $2\cdot i +b_i$ where $b_i=1$ if the $d$-th bit of the address is set:
 
 $$
@@ -82,11 +82,12 @@ $$
 b_i\gg=7-(d\mod 8)
 $$
 
+
 $$
-b_i\,\&\hspace{-3pt}=\mathtt{0x1}
+b_i{\land\hspace{-3pt}=}1
 $$
 
-In fact, $A_d$ stands for nodes of a binary tree on level $d$ and the value at each position is the overlay address filling that neighbourhood. When $d$ is incremented, we will need to fill some of the neighbourhoods with the existing nodes. Each node will fill the left child node (when $b_i=0$) or the right one ($b_i=1) depending on the subsequent bit in their overlay.
+In fact, $A_d$ stands for nodes of a binary tree on level $d$ and the value at each position is the overlay address filling that neighbourhood. When $d$ is incremented, we will need to fill some of the neighbourhoods with the existing nodes. Each node will fill the left child node (when $b_i=0$) or the right one ($b_i=1$) depending on the subsequent bit in their overlay.
 
 $$
 \forall 0\leq i < 2^d, A_d[2\cdot i+b_i]=A_{d-1}[i]
@@ -95,21 +96,21 @@ $$
 As we are filling the assignment list, we know that the whenever a neighbourhood is filled with an already existing node, its sister neighbourhood will be unassigned, therefore we can just record those in the remaining list.
 
 $$
-\forall 0\leq i < R_d[i]=2\cdot i+1-b_i
+\forall 0\leq i < len(R_d), R_d[i]=2\cdot i+1-b_i
 $$
 
 
 #### Random seed
 
-This internal read-only call takes as its single argument an ether address (a_\Xi) and returns a random $uint256$. 
+This internal read-only call takes as its single argument an ether address ($a^\Xi$) and returns a random $uint256$. 
 After checking if the ether address is a valid registrant by finding the corresponding first (unique) $entry$ struct,[^33] the `difficulty` (randao) is called on the block subsequent to the blockheight registered. Append to it the ether address and hash it to yield what will serve as the random seed for this provider.[^4]
 
 $$
-\sigma:=\mathit{blockAtHeight}(\mathit{entry}(a_\Xi).\mathit{height}+1).\mathit{difficulty}()
+\sigma:=\mathit{blockAtHeight}(\mathit{entry}(a^\Xi).\mathit{height}+1).\mathit{difficulty}()
 $$
 
 $$
-\varrho:=\mathit{uint256}(H(\sigma|a_\Xi))
+\varrho:=\mathit{uint256}(H(\sigma|a^\Xi))
 $$
 
 [^33]: Since expiry is not necessarily called when the random seed it called, the blockheight needs to be checked: 1) if block after $h$ (the one in which the registration happened) is available, 2) that the height is not greater than $h+D$ with $D$ being the validity period in blocks.
@@ -126,7 +127,7 @@ i:=\varrho\mod len(R_d)
 $$
 
 $$
-nh=R\,[\,i\,]
+nh=R[i]
 $$
 
 #### Checking the overlay
@@ -211,13 +212,10 @@ contract BalancedNeighbourhoodRegistry {
     uint256 public currentPower = 2; // 2^d
 
     // Assignments: overlay address for neighbourhoods of depth d
-    mapping(uint256 => bytes32) public A;
+    bytes32[] public A;
 
     // Remaining unassigned neighbourhoods of depth d
     uint256[] public R;
-
-    // Overlay lookup
-    mapping(address => bytes32) public overlays;
 
     // --------------------
     // Events
@@ -225,7 +223,7 @@ contract BalancedNeighbourhoodRegistry {
     event Registered(address indexed node, uint256 blockHeight);
     event Assigned(address indexed node, uint256 neighbourhood, bytes32 overlay);
     event DepthUpgraded(uint256 newDepth);
-    event Deregistered(address indexed node, uint256 neighbourhood);
+    event Unassigned(address indexed node, uint256 neighbourhood);
 
     // --------------------
     // Registration endpoint
@@ -318,7 +316,6 @@ contract BalancedNeighbourhoodRegistry {
         require(overlayNh == nh, "Overlay doesn't match neighbourhood");
 
         A[nh] = _overlay;
-        overlays[_a] = _overlay;
         N++;
 
         // Remove neighbourhood from R
@@ -335,17 +332,17 @@ contract BalancedNeighbourhoodRegistry {
         emit Assigned(_a, nh, _overlay);
     }
 
-    function deregister(address a) external {
-        overlay = overlays[a];
-        require(overlay != bytes32(0), "Not registered");
-        overlays[a] = bytes32(0);
-        uint nh = uint256(overlay) >> (256 - d);
+    //----------------------
+    // unregister
+    //----------------------
+    function unregister(address _a, bytes32 _overlay) external {
+        uint nh = uint256(_overlay) >> (256 - d);
         A[nh] = bytes32(0);
         R.push(nh);
         N--;
         // return funds to the committer
-        payable(a).transfer(STAKE);
-        emit Deregistered(a, nh);
+        payable(_a).transfer(STAKE);
+        emit Unassigned(_a, nh);
     }   
 
     // --------------------
