@@ -211,7 +211,7 @@ contract BalancedNeighbourhoodRegistry {
     uint256 public currentPower = 2; // 2^d
 
     // Assignments: overlay address for neighbourhoods of depth d
-    mapping(uint256 => address) public A;
+    mapping(uint256 => bytes32) public A;
 
     // Remaining unassigned neighbourhoods of depth d
     uint256[] public R;
