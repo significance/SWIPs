@@ -276,7 +276,7 @@ contract BalancedNeighbourhoodRegistry {
     function _findEntryFor(address _a) internal view returns (uint) {
         for (uint i = 0; i < committers.length; i++) {
             if (committers[i].committer == _a) {
-                return ì;
+                return i;
             }
         }
         revert("Not registered");
