@@ -32,7 +32,7 @@ There are multiple considerations that motivate such a scheme:
 
 The balanced neighbourhood assignment (associated with a service) is orchestrated by a smart contract which is deployed together with a [staking contract](https://github.com/ethersphere/storage-incentives/blob/master/src/Staking.sol). The contract API provides 2 transactional endpoints relevant for entry: 
 
-One registers a node by its ether address ($a_\xi$) in the *committers' list* $C$ that records nodes' commitment to partpicipate as a provider in the associated decentralised service network. 
+One registers a node by its ether address ($a_\xi$) in the *committers' list* $C$ that records nodes' commitment to participate as a provider in the associated decentralised service network. 
 
 The other one is called by the staking contract after the service network stake is deposited with a valid nonce, i.e., one that will put the node in the right neighbourhood. This call will place the node among the active node set for the service, and removes the entry from the committers list. This function includes a read-only call that takes as argument a node's  ether address and returns a neighbourhood the node is assigned to. This call is public so that the client can enquire about the neighbourhood they are assigned to -- so that they can mine an overlay address into it, ie., find a nonce that is needed to generate the overlay address. 
 
