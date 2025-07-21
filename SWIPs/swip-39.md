@@ -387,7 +387,7 @@ contract BalancedNeighbourhoodRegistry {
             if (2 * j < currentPower) {
               A[j] = bytes32(0); // Clear the old address
             }
-            R[i] = j
+            R[i] = j;
         }
         d++;
         require(d <= 32, "Maximum depth exceeded");
