@@ -286,7 +286,7 @@ contract BalancedNeighbourhoodRegistry {
     // Randomness
     // --------------------
     function _randomSeed(address _a) internal view returns (uint256) {
-        uint memory i = _findEntryFor(_a);
+        uint i = _findEntryFor(_a);
         uint256 h = committers[i].height;
         // Ensure the block number is valid as expire may not have been called
         require(block.number > h + 1, "Too early");
