@@ -71,7 +71,7 @@ After calling expiry, the validity of the registration is checked by finding the
 
 #### Initialisation 
 
-Let $\overline{N}=2^d$ be the lowest power of 2 that is  greater than $N$,    the number of already assigned registrants, and let $d$ be its exponent ($d=int(log_2(N))+1$). Let $R$ be the array of the remainding unassigned neighbouprhoods of this level (i.e., $len(R)=\overline{N}-N$). Whenever $len(R)$ drops to $0$, $d$ is incremented and $\overline{N}=2^d$ adjusts. At any point in time, a $uint256$ array of length $\overline{N}$ is maintained, called the *assignments list* $A$ holding the registered node's overlay addresses.
+Let $\overline{N}=2^d$ be the lowest power of 2 that is  greater than $N$,    the number of already assigned registrants, and let $d$ be its exponent ($d=int(log_2(N))+1$). Let $R$ be the array of the remaining unassigned neighbourhoods of this level (i.e., $len(R)=\overline{N}-N$). Whenever $len(R)$ drops to $0$, $d$ is incremented and $\overline{N}=2^d$ adjusts. At any point in time, a $uint256$ array of length $\overline{N}$ is maintained, called the *assignments list* $A$ holding the registered node's overlay addresses.
 Whenever $d$ changes, new arrays for assigments $A_d$ and remainders $R_d$ are created (both twice the size of the previous one $A_{d-1}$ and $R_{d-1}$). We iterate through the current array and for each overlay address $a^O_i$ at position $i$ copy $a^O_i$ to position $2\cdot i +b_i$ where $b_i=1$ if the $d$-th bit of the address is set:
 
 $$
