@@ -383,7 +383,7 @@ contract BalancedNeighbourhoodRegistry {
         for (uint i = currentPower - 1; i < currentPower; i--) {
             uint b = uint256(A[i]) >> (256 - d) % 2;
             A[2*i+b] = A[i];
-            j = 2*i+1-b;
+            uint256 j = 2*i+1-b;
             if (2 * j < currentPower) {
               A[j] = bytes32(0); // Clear the old address
             }
