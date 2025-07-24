@@ -371,9 +371,9 @@ contract BalancedNeighbourhoodRegistry {
     function _upgradeDepth() internal {
         currentPower = 2 ** d;
 
-        R = new uint[](currentPower);
-        // A.length *= 2 // does this not work to extend to its double with zero values?
+        delete R;
         for (uint i = 0; i < currentPower; i++) {
+            R.push(0);
             // Ensure A has enough space for the new neighbourhoods);   
             A.push(bytes32(0));
         }
